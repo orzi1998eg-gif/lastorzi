@@ -34,6 +34,7 @@ export interface Collection {
   descriptionAr: string;
   status: 'available' | 'coming-soon' | 'sold-out';
   image: string;
+  images?: string[];
   productCount: number;
 }
 

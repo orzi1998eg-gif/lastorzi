@@ -2,6 +2,18 @@ import { Collection } from '../types/product';
 
 export const collections: Collection[] = [
   {
+    id: 'bracelets',
+    name: 'ORZI - Bracelets Collection',
+    nameAr: 'أورزي - مجموعة الأساور',
+    slug: 'bracelets',
+    description: 'Timeless brass bracelets that embody heritage, elegance, and lasting quality. Each piece tells a story.',
+    descriptionAr: '.أساور نحاسية خالدة تجسد التراث والأناقة والجودة الدائمة',
+    status: 'available',
+    image: '/orzi-sophia1.jpg',
+    images: ['/orzi-sophia1.jpg', '/orzi-aura1.jpg', '/orzi-harmonia1.jpg'],
+    productCount: 3,
+  },
+  {
     id: 'heritage-trousers',
     name: 'ORZI - Heritage Trousers',
     nameAr: 'أورزي - بنطلون التراث',

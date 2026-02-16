@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Collection } from '../../types/product';
 
 interface CollectionTileProps {
@@ -9,6 +11,18 @@ export default function CollectionTile({
   collection,
   onActionClick,
 }: CollectionTileProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const hasSlider = collection.images && collection.images.length > 1;
+  const images = collection.images || [collection.image];
+
+  useEffect(() => {
+    if (!hasSlider) return;
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [hasSlider, images.length]);
+
   const statusConfig = {
     available: {
       label: 'متاح',
@@ -30,18 +44,61 @@ export default function CollectionTile({
   const config = statusConfig[collection.status];
   const isDisabled = collection.status === 'sold-out';
 
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
   return (
     <div
       className="group relative h-80 md:h-96 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:scale-105"
       style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)' }}
+      onClick={onActionClick}
     >
-      <img
-        src={collection.image}
-        alt={collection.name}
-        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${
-          isDisabled ? 'grayscale' : ''
-        }`}
-      />
+      {images.map((img, index) => (
+        <img
+          key={index}
+          src={img}
+          alt={`${collection.name} ${index + 1}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
+            index === currentImageIndex
+              ? 'opacity-100 scale-100'
+              : 'opacity-0 scale-95'
+          } ${isDisabled ? 'grayscale' : ''}`}
+        />
+      ))}
+
+      {hasSlider && (
+        <>
+          <button
+            onClick={prevImage}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-[#243247] p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-[#243247] p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronRight size={20} />
+          </button>
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+            {images.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentImageIndex ? 'bg-white w-6' : 'bg-white/60'
+                }`}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       <div
         className={`absolute inset-0 ${
@@ -65,9 +122,12 @@ export default function CollectionTile({
           {collection.descriptionAr}
         </p>
 
-        {collection.status === 'available' && collection.id !== 'bracelets' && (
+        {collection.status === 'available' && (
           <button
-            onClick={onActionClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              onActionClick?.();
+            }}
             className="self-start px-6 py-2 font-semibold rounded-lg transition-all duration-300 bg-[#e7ddcc] text-[#243247] hover:bg-white transform hover:scale-105 hover:shadow-lg"
           >
             {config.buttonLabel}
